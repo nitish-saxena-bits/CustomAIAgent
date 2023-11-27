@@ -23,14 +23,14 @@ app.post("/", async (req, res) => {
         messages: [
             {
                 role: "system",
-                content: "You are myGPT, you can write emails and letters."
+                content: "Hi!, this is from system role API call!"
             },
             ...chats
         ]
     });
 
     res.json({
-        output: result.data.choices[0].message
+        output: result.choices[0].message
     });
 
 });
