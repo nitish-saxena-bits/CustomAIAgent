@@ -1,43 +1,57 @@
 import { useState } from 'react'
+import FileUploader from './fileUploader';
 
 function App() {
   const [message, setMessage] = useState("");
   const [chats, setChats] = useState([]);
   const [isAIProcessing, setIsAIProcessing] = useState(false);
+  const [isPdfUploaded, setIsPdfUploaded] = useState(false);
 
- const AIChat = async (e, message) => {
-  e.preventDefault();
 
-  if(!message) return;
-  setIsAIProcessing(true);
+  const AIChat = async (e, message) => {
+    e.preventDefault();
 
-  let conversation = chats;
-  conversation.push({role:  "user", content: message});
-  setChats(conversation);
-  scrollTo(0, 1e10);
+    if (!message) return;
+    setIsAIProcessing(true);
 
-  setMessage("");
-
-  fetch("http://localhost:8080/", {
-    method: "post",
-    headers:{
-      "Content-Type":"application/json"
-    },
-    body:JSON.stringify({
-      chats,
-    }),
-  }).then((response) => response.json())
-  .then((data) => {
-    conversation.push(data.agentReply);
+    let conversation = chats;
+    conversation.push({ role: "user", content: message });
     setChats(conversation);
-    setIsAIProcessing(false);
     scrollTo(0, 1e10);
-  }).catch(error => console.log(error));
- }
+
+    setMessage("");
+
+    fetch("http://localhost:8080/", {
+      method: "post",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        chats,
+      }),
+    }).then((response) => response.json())
+      .then((data) => {
+        conversation.push(data.agentReply);
+        setChats(conversation);
+        setIsAIProcessing(false);
+        scrollTo(0, 1e10);
+      }).catch(error => console.log(error));
+  }
+
+  const handleUpload = (files) => {
+    setIsPdfUploaded(true);
+    console.log('Uploaded files:', files);
+  };
 
   return (
     <main>
       <h1>Nitish Custom AI Chat</h1>
+
+      <div>
+        <h2>Upload PDF below-</h2>
+        <FileUploader onUpload={handleUpload} />
+        <p>{isPdfUploaded ? "PDF Uploaded! Start querying now" : "No file uploaded!"}</p>
+      </div>
 
       <section>
         {chats && chats.length
@@ -50,13 +64,13 @@ function App() {
               <span>{chat.content}</span>
             </p>
           ))
-        : ""}
+          : ""}
       </section>
 
       <div className={isAIProcessing ? "" : "hide"}>
-            <p>
-              <i>{isAIProcessing ? "AI Agent is processing..." : ""}</i>
-            </p>
+        <p>
+          <i>{isAIProcessing ? "AI Agent is processing..." : ""}</i>
+        </p>
       </div>
 
       <br></br>
