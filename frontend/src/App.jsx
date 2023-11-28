@@ -59,12 +59,13 @@ function App() {
             </p>
       </div>
 
+      <br></br>
       <form action="" onSubmit={(e) => AIChat(e, message)}>
         <input
           type="text"
           name="message"
           value={message}
-          placeholder="Please type your message here..."
+          placeholder="Please type your query here..."
           onChange={(e) => setMessage(e.target.value)}>
         </input>
       </form>
