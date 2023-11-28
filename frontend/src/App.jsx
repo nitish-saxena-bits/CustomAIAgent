@@ -3,22 +3,36 @@ import { useState } from 'react'
 function App() {
   const [message, setMessage] = useState("");
   const [chats, setChats] = useState([]);
-  const [isTyping, setIsTyping] = useState(false);
+  const [isAIProcessing, setIsAIProcessing] = useState(false);
 
- const chat = async (e, message) => {
+ const AIChat = async (e, message) => {
   e.preventDefault();
 
   if(!message) return;
-  setIsTyping(true);
+  setIsAIProcessing(true);
 
-  let msgs = chats;
-  msgs.push({role:  "user", content: message});
-  setChats(msgs);
+  let conversation = chats;
+  conversation.push({role:  "user", content: message});
+  setChats(conversation);
+  scrollTo(0, 1e10);
 
   setMessage("");
 
-  alert(message);
-
+  fetch("http://localhost:8080/", {
+    method: "post",
+    headers:{
+      "Content-Type":"application/json"
+    },
+    body:JSON.stringify({
+      chats,
+    }),
+  }).then((response) => response.json())
+  .then((data) => {
+    conversation.push(data.agentReply);
+    setChats(conversation);
+    setIsAIProcessing(false);
+    scrollTo(0, 1e10);
+  }).catch(error => console.log(error));
  }
 
   return (
@@ -30,27 +44,27 @@ function App() {
           ? chats.map((chat, index) => (
             <p key={index} className={chat.role === "user" ? "user_msg" : ""}>
               <span>
-                <b>{chat.role.toUpperCase()}</b>
+                <b>{chat.role === "user" ? "You" : "AI Agent"}</b>
               </span>
-              <span>:</span>
+              <span>: </span>
               <span>{chat.content}</span>
             </p>
           ))
         : ""}
       </section>
 
-      <div className={isTyping ? "" : "hide"}>
+      <div className={isAIProcessing ? "" : "hide"}>
             <p>
-              <i>{isTyping ? "Typing" : ""}</i>
+              <i>{isAIProcessing ? "AI Agent is processing..." : ""}</i>
             </p>
       </div>
 
-      <form action="" onSubmit={(e) => chat(e, message)}>
+      <form action="" onSubmit={(e) => AIChat(e, message)}>
         <input
           type="text"
           name="message"
           value={message}
-          placeholder="Type a message here.."
+          placeholder="Please type your message here..."
           onChange={(e) => setMessage(e.target.value)}>
         </input>
       </form>

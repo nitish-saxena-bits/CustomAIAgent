@@ -3,22 +3,23 @@ import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 
-const app = express();
-const port = 3000;
-app.use(bodyParser.json());
-app.use(cors());
+const server = express();
+const serverPort = 8080;
+server.use(bodyParser.json());
+server.use(cors());
 
-const config = {
+const OpenAIApiAccessConfig = {
     organization: "org-PP3qdcV6RVbieV6GpZGgjDpa",
     apiKey:  "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"
 };
 
-const openAI = new OpenAI(config);
+const openAI = new OpenAI(OpenAIApiAccessConfig);
 
-app.post("/", async (req, res) => {
-    const {chats} = req.body;
+server.post("/", async (request, response) => {
 
-    const result = await openAI.chat.completions.create({
+    const {chats} = request.body;
+
+    const openAIApiResponse = await openAI.chat.completions.create({
         model: "gpt-3.5-turbo",
         messages: [
             {
@@ -29,12 +30,11 @@ app.post("/", async (req, res) => {
         ]
     });
 
-    res.json({
-        output: result.choices[0].message
+    response.json({
+        agentReply: openAIApiResponse.choices[0].message
     });
-
 });
 
-app.listen(port, () => {
-    console.log(`listening on port ${port}`);
+server.listen(serverPort, () => {
+    console.log(`listening on port ${serverPort}`);
 })
