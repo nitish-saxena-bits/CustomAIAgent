@@ -1,35 +1,61 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [message, setMessage] = useState("");
+  const [chats, setChats] = useState([]);
+  const [isTyping, setIsTyping] = useState(false);
+
+ const chat = async (e, message) => {
+  e.preventDefault();
+
+  if(!message) return;
+  setIsTyping(true);
+
+  let msgs = chats;
+  msgs.push({role:  "user", content: message});
+  setChats(msgs);
+
+  setMessage("");
+
+  alert(message);
+
+ }
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <main>
+      <h1>Nitish Custom AI Chat</h1>
+
+      <section>
+        {chats && chats.length
+          ? chats.map((chat, index) => (
+            <p key={index} className={chat.role === "user" ? "user_msg" : ""}>
+              <span>
+                <b>{chat.role.toUpperCase()}</b>
+              </span>
+              <span>:</span>
+              <span>{chat.content}</span>
+            </p>
+          ))
+        : ""}
+      </section>
+
+      <div className={isTyping ? "" : "hide"}>
+            <p>
+              <i>{isTyping ? "Typing" : ""}</i>
+            </p>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+
+      <form action="" onSubmit={(e) => chat(e, message)}>
+        <input
+          type="text"
+          name="message"
+          value={message}
+          placeholder="Type a message here.."
+          onChange={(e) => setMessage(e.target.value)}>
+        </input>
+      </form>
+    </main>
+  );
 }
 
-export default App
+export default App;
